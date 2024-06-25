@@ -1,0 +1,1 @@
+extern uint32_t translateDPInstructions(AssemblyInstruction dAssLn);

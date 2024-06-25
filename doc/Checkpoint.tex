@@ -1,0 +1,64 @@
+\documentclass[10pt]{article}
+\usepackage{graphicx}
+\usepackage{fullpage}
+
+\begin{document}
+
+\title{ARM Checkpoint }
+\author{Kai Wang,  Kee Meng Tan, Will Punter, Yehen Singankutta Arachchilage}
+
+\maketitle
+
+\section{Group Organisation and Initial Setup}
+
+\paragraph{Establishing online communication} 
+First and foremost, in order to work efficiently as a group, we collectively agreed on a common online platform which would act as the group's main form of communication. This first step has proved most valuable in allowing the group to effectively relay ideas, suggestions, questions and resources. The same platform would also be used to inform our teammates of progress that has been made, as well as plans for in-person meet ups and work to be done. 
+
+\paragraph{Discussing the structure of the emulator} 
+Once we had established a means of communication, we soon scheduled an in person meetup with the aims of going through the specification of Part 1 together and discuss ideas on how to structure our implementation of the emulator. The main topics of discussion including:
+\begin{itemize}
+    \item What the emulator does so that the group understand the goals of the emulator
+    \item How to represent the components of the emulator, such as it's registers, special registers and memory and how to design the types/C~structs that would be used to represent these components
+    \item How to decompose and structure the project into modules and files
+\end{itemize}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.3]{IncludesGraph2.png}
+    \caption{The includes graph of our emulator post clean up}
+    \label{fig:includesGraph2}
+\end{figure}
+
+\paragraph{Creating a skeleton}
+After discussion about the structure of the emulator, \textbf{Will} wrote an initial skeleton briefly outlining and describing each feature that needed to be implemented. Each description would typically include a brief step-by-step overview of what the feature should do, as well as what checks needed to be carried out. The concise nature of the skeleton helped abstract and decompose each feature of the project, making it easier to isolate and assign tasks to each member of the group. 
+
+\section{Implementation}
+
+\paragraph{Writing the global utilities and data types}
+Before splitting the main emulator features amongst the group members, as a group, we designed and implemented the data types that would be used to represent the emulator components. This included C structs which heavily utilised the properties of the ``Union'' data type allowing us to represent registers as 64bits and 32bits simultaneously. Additionally, we identified the common processes shared by each feature and defined global utilities or macros in ``common.h'' to help minimise code size and improve code readability. Such utilities included a macro which extracted a specific field of``n'' bits from binary.
+
+\paragraph{Distributing and implementing the key features}
+Following the successful development of global utilities and data types, we discussed which features each of us would like to implement and distributed the several features amongst the group and worked on each instruction independently. Throughout this process, we liaised with each other to help tackle challenging problems and discuss the progress being made. 
+\textbf{Kai} worked on the decoding and executing of branch instructions, as well as the entry point of the emulator main loop. 
+\textbf{Kee Meng} worked on the decoding and executing of data processing for immediate, and the basic fetch stage of the fetch decode execute cycle. 
+\textbf{Will} worked on the decoding and executing of data processing for registers, and handled the loading of the binary files into the emulator. 
+\textbf{Yehen} worked on decoding the Load/Store instructions, and for outputting the contents of the registers to an output file
+
+
+\paragraph{Debugging, peer programming and clean up}
+Once each member had completed an initial draft for their allocated tasks, each feature was committed to a ``debug-emulator'' git branch ready to be tested and debugged. Ensuring significant progress in the project while debugging the emulator proved to be quite challenging. As a result, we decided to split the group into 2 pairs. \textbf{Kai and Kee Meng} would work on the aforementioned git branch and debug the emulator. Once we had an emulator which passed all tests, \textbf{Kee Meng} worked on improving the structure of the project, removing redundancies and adding comments to aid readability. \emph{See Figure \ref{fig:includesGraph2} to see the restructured project.}  \textbf{Kai} then worked on the report in parallel to the development of the part 2 assembler by \textbf{Will and Yehen}. 
+
+\paragraph{Reusable components for the assembler}
+Similar to the emulator, the assembler also needs to take in an input file, process it's data and then output this to an output file. As such, some of our IO handling functions for the emulator can be taken and tweaked to be used in our assembler implementation. In addition to this, elements of our emulator decoding functions (in the modules prefixed with ``de\textunderscore'') can also be looked at when developing the corresponding functions in the assembler. Unfortunately due to the usage of global variables to store information about the CPU, not many modules from the emulator can be reused for the assembler. 
+
+\paragraph{How well did the group work together?}
+Subjectively speaking, each member was able to maintain active communication and assist each other whenever a question was raised. Furthermore, each members was able to contribute during discussions and make suggestions to help improve our project, justifying their ideas. Overall, we can collectively agree that the group was able to work together effectively and contribute equally to the project.
+
+\paragraph{Challenges about the emulator}
+Since we initially only created a single module to handle the entire fetch decode execute cycle, it quickly became messy and difficult to work with and collaborate on. We eventually split this big module into decode and execute instructions for the four main instruction groups to ensure everyone had a similar workload. 
+We also had different styles of coding, so cleaning up the files at the end took more time than necessary. For future parts of the project, we have decided on a standardized styling convention to ensure code consistency and maintainability. 
+
+\paragraph{Improvements and next steps}
+When we first created the initial skeleton, we had to declare 2 global variables for the CPU structure and the current instruction to reduce accesses to the program counter. A possible way to improve this is to initialise the CPU variable in the main function in emulate.c as a local variable, and passing it into each of the dependent modules to reduce the scope of the CPU variable to make it more robust. 
+We also relied heavily on printf statements to debug our code, and it would be have been more efficient to use a debugger instead. We could try to use a debugger for future parts of this project. 
+
+\end{document}

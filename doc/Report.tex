@@ -1,0 +1,159 @@
+\documentclass[11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[a4paper, total={7in, 10in}]{geometry}
+\begin{document}
+
+\title{First Year C Project Final Report}
+\author{Kai Wang, Kee Meng Tan, Will Punter, Yehen Singankutta Arachchilage}
+
+\maketitle
+
+\section{Part 2 - The Assembler}
+
+\subsection{Designing the assembler} As we described in the checkpoint report, our group split into 2 pairs in order to work on both debugging the emulator and designing the assembler in parallel. The pair working on designing the assembler, \textbf{Yehen} and \textbf{Will}, would discuss amongst themselves about how to structure the assembler and what the process would be in order to convert the given assembly into binary. In the end, the pair agreed on a 2 pass process.
+
+\subsubsection{The first pass} The first pass would store each line of assembly from the input file into a buffer, removing label declarations and empty lines along the way, and store labels to a hash table mapping labels to addresses.
+
+\subsubsection{The second pass}\label{second-pass} The second pass would then read assembly lines from this buffer and convert them into a predefined structure - namely the structure ``AssemblyInstruction" - before then converting each structure into binary. The structure ``AssemblyInstruction" played a vital role in the design of our assembler and held important attributes including:
+\begin{itemize}
+    \item An enum ``name", storing the name of the instruction as a mnemonic \vspace{-0.5em}
+    \item An enum ``addressMode", storing the type of any load/store instructions \vspace{-0.5em}
+    \item An array of structs ``operands", storing operands in a struct storing a ``type" enum and ``value"\vspace{-0.5em}
+    \item An int ``numOperands" which explicitly stores the exact number of operands in the instruction \vspace{-0.5em}
+\end{itemize}
+By representing each line of assembly as an ``AssemblyInstruction" struct, we were able to conveniently access all the necessary information through the attributes mentioned above. 
+
+\subsection{Distributing tasks and implementing the assembler} After discussing our strengths, preferences and time availability, we delegated tasks as such - \vspace{0.5em}
+
+\textbf{Will} would work on the first pass and implementing the label hash map. Upon completion, he would then move on to start making advancements in our extension. By asking Will to move onto the extension early, we would be able to make early progress on the extension while allowing time for the rest of the group to complete the assembler. \vspace{0.5em}
+
+\textbf{Yehen} would work on designing the structures required for the instructions as well as the second pass entry and exit code and implementing the decode function for the load/store assembly instructions. \emph{(See Section \ref{second-pass} for brief details on some of the structs)} \vspace{0.5em}
+
+\textbf{Kai} would work on the decode functions for both the immediate and register data processing assembly instructions. \vspace{0.5em}
+
+\textbf{Kee Meng} would work on the decode function for branching and proof read, as well as clean up the group's implementation of the assembler, ensuring good code readability and structure.
+
+\subsection{Reflecting on Part 2}
+
+\subsubsection{Did the group work well?}
+Subjectively speaking, the group worked very well. By splitting the group into 2 pairs during the final parts of the emulator - the first pair (\textbf{Kai} \& \textbf{Kee Meng}) working on debugging and finishing the emulator and the second pair (\textbf{Will} \& \textbf{Yehen}) beginning to implement the design of the assembler - we were able to make quick progress by tackling the tasks in a pipe-line like manner. This approach meant that by the time \textbf{Will} and \textbf{Yehen} had finished implementing an initial structure for the assembler, \textbf{Kai} and \textbf{Kee Meng} would have finished off the parts of the emulator, and would be ready to work off the ground work of the assembler laid out by the others. \vspace{0.5em}
+
+Because of how well the pipeline-like method of task distribution worked, we decided to implement it yet again with \textbf{Will} moving on to the extension while the remaining 3 members completed the assembler. 
+
+\subsubsection{What challenges did we face?}
+One challenge we had to face was converting each assembly line string into the structures, ensuring all necessary information could be stored. As \textbf{Yehen} did not work on all parts of the assembler, changes needed to be made to the ``AssemblyInstruction" struct throughout the development. A particular challenge was parsing the different load/store orperands, as they were different to other instructions and not only separated through spaces. To tackle this, a separate function was made to deal with parsing load and store operands. \vspace{0.5em}
+
+A second challenge that we had to face was \textbf{deciding how to decode the data processing instructions}. Due to the sheer number of data processing instructions, designing and coding a readable and efficient solution was difficult, as a rule for categorising all these instructions would be required to create a structured solution. In the end, \textbf{Kai} decided to break the instructions into ``Data processing immediate", ``Data processing register", ``Wide immediate move" and ``Logic and mult data processing" categories. Selection statements would be used to separate the instructions accordingly. Vast usage of the `follow through' switch feature were used to help minimise code size and improve readability. \vspace{0.5em}
+
+Another challenge that we faced was \textbf{implementing the decode functions for the branch instructions}. Since the offset for branch instructions were relative to the address of the instruction, we needed to somehow track the address of each instruction. This was a quick fix by \textbf{Yehen} as he simply added an extra member to the ``AssemblyInstruction" struct called `address'. After this adjustment, \textbf{Kee Meng} was able to calculate the offset by simply accessing the address of the current instruction and finding the signed difference between it and the target address.
+
+\section{Part 3 - Making an LED Blink With Raspberry Pi}
+\subsection{Starting and Testing Part 3} Once the assembler was completed, all members would meet up together to go through Part 3 of the spec and come up with solutions. For now, the main focus was to understand the memory in the Raspberry Pi and how to send signals through the GPIO pins. \vspace{1em}
+
+We first discussed the basic boot sequence of the hardware to ensure that we all had a rough idea of how the assembly code would run and how the GPIO pins work. We then began to write drafts of assembly. Since the hardware wasn't able to communicate errors to us when it didn't work, we had to make use of the assembler and emulator to test our assembly code by\vspace{-0.5em}
+\begin{itemize}
+    \item 1. Assembling our assembly code to binary.\vspace{-0.5em}
+    \item 2. Emulating our assembled assembly code and outputting the register output 
+\end{itemize} \vspace{1em}
+
+By reading the emulator output, we could make sure that we were writing to the correct registers and addresses. \vspace{1em}
+
+We worked on this part in two stages. First we just got an LED to light up to ensure that our code was writing to the correct GPIO pin. We then wrote an infinite loop where we would send oscillating set and clear signals to get the LED to blink.
+
+\subsection{Challenges with Part 3}
+Debugging proved to be a bit challenging for part 3, due to the low-level nature of the project. Since the only output of our program was the LED it was hard to tell what was preventing our code from working. Before writing the LED blinking code, we used a .img file that was known to work to ensure that our Raspbery Pi was actually running the code. We used the emulator for debugging, but found that it did not have enough simulated memory to store the data at the set and clear memory mapped registers. We changed these addresses temporarily to avoid this.
+
+Another challenged that presented itself was using the hardware, particularly the breadboard. We incorrectly assumed that the columns of the breadboard were linked rather than the rows, causing us to suffer quite a bit of lost time which could have been spent writing the assembly code. We also had an LED that was unusually dim so we swapped it out for a different one. 
+
+\section{Part 4 - Our Extension}
+\subsection{Description}
+For our project, we decided to make a \textbf{small scale arcade system with a simple retro UI and small library of classic games to choose from}. Featuring multiple different games of different styles embedded inside, the project could be used as both a casual single or multi player pastime. We also chose this project for its ability to be easily decomposed and split amongst the teammates. In essence, each member would contribute at least one game to the project, and in the end, we would link all the games to a single menu/GUI to emulate a small multi game arcade system.
+
+\subsection{How to Run The Extension}
+Use the commands ``make install" and ``make install-mac" to install GLFW and GLEW on Ubuntu and Mac respectively. Running ``make all" for Ubuntu and ``make mac" for Mac will compile the code. This should output an executable ``game" and can be run using ``./game" in the extension directory.
+
+\subsection{Structure of the Extension}
+We split our project into an engine and the games themselves. Each game had its own module in the games folder. The games themselves are states in a state machine in the engine. States are defined using a table (array) that maps numerical states, defined with an enum, to pointers to functions for initialising, updating, rendering and exiting states. The game runs in a game loop which executes the functions in the state table corresponding to the current state.
+
+\subsection{Making a Simple Game Engine}
+While the group was completing the assembler, \textbf{Will} - who had moved on to the extension early - would begin to write a simple game engine using OpenGL.
+The modules in the engine included the following: window (for creating a window and handling events), renderer (for loading and compiling shaders, loading textures and drawing sprites), linearAlgebra (for handling matrix and vector operations) and GUI (for button and text label structures and functions). Each module provided common structures (such as sprites, matrices and vectors) and appropriate functions using them. Generally, our decision to build a simple engine / library first was effective since it allowed the rest of the group to program their games without needing to research OpenGL first.
+\paragraph{Challenges}Probably the biggest challenge we faced in the development of the engine was isolating the engine from the games so that games would continue to work even if the implementation of the engine was changed, and to make the engine reusable. We didn't end up getting this perfect however as each game had to have its main functions added to the state table inside the engine. In future projects, we would use a macro or a function to add a function to the state table without needing to access the engine's code to fully isolate the games from the engine. 
+
+\subsection{Testing the Extension}
+Since games are very visual, we tested our program by playing our games and checking that they behaved as expected. In the future, we could improve our testing by writing thorough unit tests. While these are not necessarily good for testing the games themselves, they would be very effective for testing utility functions, especially our linear algebra module.
+
+\subsection{Game 1 - Minotaurs}
+\paragraph{Overview} The first game ``Minotaurs" is a Pac-man style game created by \textbf{Will}. In this game, the player must navigate a maze while collecting coins and avoiding multiple minotaurs to get as high a score as possible. The design involved creating a 2D array to represent the tile map as well as creating an adjacency matrix and path finding algorithm - particularly Dijkstra - so that enemies could chase the player.
+\paragraph{Challenges} \textbf{Will} found the implementation of a path finding algorithm particularly challenging. He initially attempted to use Floyd's algorithm to compute the shortest path between all pairs of tiles in $\mathcal{O}(n^3)$ time, however this was not feasible as the tile map consisted of 1200 tiles and would have required an array of $1200^3$ tiles, consuming 1.8GB of memory. This would push the stack to a segmentation fault, thus resulted in the decision to use Dijkstra's algorithm to compute the shortest path on a per-frame basis. 
+
+\subsection{Game 2 - Pong}
+\paragraph{Overview} The second game is a simple remake of the classic arcade game ``Pong" created by \textbf{Kai}. The game would consist of 2 paddles and a ball colliding and ricocheting against the floor, ceiling and 2 player paddles. The design is simplistic and would only consist of 3 structures to represent the ball and paddles. The simplicity of the game allowed \textbf{Kai} to implement the game very quickly and move on to work on the Latex documented final report. 
+\paragraph{Challenges} The only challenge in making this game was utilising the `angle' of the ball to calculate the elastic collisions between the ball and the wall or paddle. To overcome this, instead of using mechanics to calculate the angle of deflection on each collision, \textbf{Kai} initialised an x and y speed and reversed the horizontal speed of the ball when it collided with the paddles and reverse the vertical speed when colliding with either the ceiling or floor, by changing the sign.
+
+\subsection{Game 3 - Snake}
+\paragraph{Overview} The last game was a remake of yet another classic, ``Snake", which was implemented by \textbf{Kee Meng}. Interestingly, \textbf{Kee Meng} represented the player's snake as a doubly linked list, allowing him to create functions that easily operate on the head and tail of the list - arguably the most vital parts of the player. 
+\paragraph{Challenges} Since \textbf{Kee Meng} wanted to display a different texture for each unique direction the snake took, he had to make use of many switch cases in order to analyse the direction of the head in relation to the direction of the rest of it's body. However, this issue was also resolved after patient and attentive debugging. 
+
+\subsection{Game 4 - Snakes and Ladders}
+\paragraph{Overview} The third game was a snakes \& ladders game created by \textbf{Yehen}, with a grid of 10 x 10 tiles and randomly generated snakes and ladders. Designed for 2, each player takes turns to roll their dice and they race through the board's obstacles to see which of them can be the first to reach the top.
+\paragraph{Challenges} Having each snake and ladder being randomly generated posed some problems for \textbf{Yehen}. Because of the random top and bottom positions of the snakes and ladders, and also the snaking design of the game board, the size and angle of each sprite had to be calculated from each snake's start and end points, leading to many logic errors, though these errors could be resolved through careful debugging. 
+
+
+\subsection{User Interface and Menus}
+Finally, once all the games were done, \textbf{Will} would create the main menu and user interface which would allow the player to navigate between the games. \textbf{Kee Meng} then made the code more modular such that it will be easy to add additional games without manually changing the menu layout. With the main menu completed, our extension is now done. 
+
+\section{Group Reflection}
+\label{sec:group-reflection}
+Reflecting holistically, the group agrees that we were able to work very effectively. Active communication was maintained throughout the entire project and through communication, each group member was able to discuss and pick up tasks and responsibilities based on their strengths and abilities. Not only did this maximise group productivity and efficiency, active communication also helped ensure steady and consistent progress as each member could provide assistance and also hold each other accountable for their delegated tasks. 
+
+Further, and as mentioned earlier in this report, we were able to very efficiently split the work between group members, and we were able to rely on each other to complete our respective sections. By having different members move on towards the final debugging of parts 1 and 2 helped to more smoothly move on our progress. 
+
+Things we as a group would do differently would include having discussions much earlier on how we wanted to split up the work between everyone. In this project, we all began work on part 1 together, and while doing so meant we had a very polished code base, we agree that much of this time could have been dedicated to part 4 without hindering our implementation too much. However, going forward we have all grown confidence in our capabilities programming and working as a group, so this issue won't arise in our next group project together.
+
+\section{Individual Reflection}
+\paragraph{Kai's Reflection} Personally, I very much enjoyed working with my peers in this group project. Keeping up frequent and active communication allowed me to keep up to date with everyone's progress and also ask my peers what I could do to help. 
+
+As someone who is moderately confident with their writing skills, I was glad that I could utilise those skills to contribute to the group through report writing. However, through this project I've discovered a weakness where I struggle a lot with MacOS compatibility issues and often rely on others to guide me if I bump into any such issues. 
+
+In future group projects with different people, I would definitely advocate for active communication as I feel like that was a major factor that positively impacted this group's productivity in many ways \emph{(See Section \ref{sec:group-reflection} for examples)}. Additionally, if future groups include 4 or more people, I would heavily recommend a pair/split-group programming approach and suggest tackling the project in a pipe-line like manner for a streamlined group programming experience.
+
+\paragraph{Kee Meng's Reflection} During the start of the project, it was slightly hard for me to fit in as we did not work on a group project together before even though we knew each other, but we planned everything out at the start and allocated our parts equally for part 1 and part 2 and it went well. Due to musical commitments Kai and I had, we had to arrange our group meetings around our rehearsals and performances, and we were really grateful that Will and Yehen were building the skeleton code for us to work on later on after our performance. In a sense the trust between the four of us was very strong. 
+
+Since most of us knew programming before, we all had a good understanding of how to write good code such as writing algorithms efficiently and how to format header and c files, but it was obvious that our styling tendencies were different which was slightly annoying for me to look at, so I would volunteer to spend a few hours after each part of the project to clean up the directories and files. 
+We also utilised git fairly well, and worked on several branches at the same time before merging them together. Sometimes there were merge conflicts but due to our code being well structured, it was mostly straightforward to resolve them. 
+In conclusion, I really enjoyed working with the others, and we all helped each other whenever we needed help, and it was very nice being around the others.
+
+\paragraph{Yehen's Reflection} With this being my first group project, I was initially worried about whether I would be able to contribute effectively, especially given how new to C programming I was. We were all already friends, and so I think this help us to communicate well with each other. I felt that I was able to properly contribute to my module of part 1, but with how unfamiliar with C I was, and that I was working from WSL and needed to SSH into lab machines to properly test the code, I wanted to stay away from the debugging part and wanted to move onto part 2 of the project, the assembler. 
+
+I felt that I had more impact on part two of this project than I did on the other parts, and I wanted to do my part to help the group project run as smoothly as possible. I took the responsibility for a core function of part 2 that made it easier for the rest of my group to complete the parts they were given, and this made me more confident in debugging the program afterwards. For part 4, I felt more comfortable with my code knowing that while my code was necessary for the group to succeed, no one else needed to depend on it. We all discussed conventions we needed to follow and had shared modules we could reference.
+In conclusion, having completed the group project, I feel that this group has helped me to develop my programming skills in this type of language, and also not only improved our friendship but also helped us in knowing how to function as a team.
+
+\paragraph{Will's Reflection} I have a decent amount of experience with C and felt that my main strengths came from my
+experience, allowing me to contribute to the structure of
+programs, the development of library and utility functions and in debugging
+the code. For example, while the rest of the group worked on part 2 of the
+project, I started on part 4 by building a simple 2d game engine with the intention of abstracting away the difficulties of GUI and OpenGL programming. I felt that my main weaknesses were related to the readability of code and documentation. At some points in the project, I used styling that I was used to rather than what was taught in the lectures, leading to differences in code
+styling with the other group. In future projects, I would take a lot more care to ensure that my styling matched
+the rest of the group from the start so as to avoid needing to clean it up later on. I also felt that I could have been more thorough with my
+documentation. There were a few instances where I
+made a change but didn't get round to documenting it, which led to the occasional
+miscommunication within the group, as we were briefly working with different
+versions of the engine. In future projects I would take a lot more care to
+thoroughly document my code.
+Generally, I felt that our group were effective
+at communication and at organising the project. We used Discord throughout,
+and I would definitely consider using it or a similar program for future
+projects since it allowed us to work on the project remotely while communicating
+effectively. In future projects of a similar timescale I would actually consider reducing the level of planning used. We spent
+a lot of time planning part 1 and, while this did help us code the project with
+relative ease, we found that we were able to do parts 2, 3 and 4 much quicker with significant but less
+planning. I think this is because a lot of the details we planned
+in part 1 were trivial and could easily be deduced. I think we could also have
+benefited from using debugging tools more effectively. We made good use of
+tools such as GDB, Valgrind and address sanitization towards the end of the
+project, we could have benefited from using them from the beginning. This is
+something I'd keep in mind for future projects.
+
+\end{document}

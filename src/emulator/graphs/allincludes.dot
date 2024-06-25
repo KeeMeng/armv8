@@ -1,0 +1,37 @@
+digraph "graphs/allincludes" {
+  1 -> 2;
+  3 -> 2;
+  3 -> 4;
+  5 -> 2;
+  5 -> 6;
+  7 -> 2;
+  7 -> 8;
+  9 -> 2;
+  9 -> 10;
+  11 -> 2;
+  11 -> 12;
+  11 -> 13;
+  14 -> 2;
+  14 -> 4;
+  14 -> 6;
+  14 -> 8;
+  14 -> 10;
+  14 -> 12;
+  15 -> 2;
+  15 -> 13;
+  1 [label="common.c"];
+  2 [label="common.h"];
+  3 [label="de_branch.c"];
+  4 [label="de_branch.h"];
+  5 [label="de_dpimm.c"];
+  6 [label="de_dpimm.h"];
+  7 [label="de_dpreg.c"];
+  8 [label="de_dpreg.h"];
+  9 [label="de_sdt.c"];
+  10 [label="de_sdt.h"];
+  11 [label="emulate.c"];
+  14 [label="fde.c"];
+  12 [label="fde.h"];
+  15 [label="ioHandler.c"];
+  13 [label="ioHandler.h"];
+}

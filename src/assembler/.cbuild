@@ -1,0 +1,3 @@
+CC				=	gcc
+CFLAGS			=	-std=c17 -g -Wall -g -Wall -Wextra -pedantic -D_POSIX_SOURCE -D_DEFAULT_SOURCE
+BUILD			=	assemble

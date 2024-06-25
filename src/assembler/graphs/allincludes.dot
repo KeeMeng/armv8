@@ -1,0 +1,33 @@
+digraph "graphs/allincludes" {
+  1 -> 2;
+  1 -> 3;
+  1 -> 4;
+  5 -> 2;
+  5 -> 3;
+  5 -> 4;
+  5 -> 6;
+  5 -> 7;
+  5 -> 8;
+  9 -> 3;
+  10 -> 3;
+  10 -> 4;
+  11 -> 3;
+  11 -> 6;
+  12 -> 3;
+  12 -> 7;
+  13 -> 3;
+  13 -> 8;
+  1 [label="assIoHandler.c"];
+  2 [label="assIoHandler.h"];
+  5 [label="assemble.c"];
+  9 [label="assembleDefs.c"];
+  3 [label="assembleDefs.h"];
+  10 [label="hashTable.c"];
+  4 [label="hashTable.h"];
+  11 [label="tr_branch.c"];
+  6 [label="tr_branch.h"];
+  12 [label="tr_dp.c"];
+  7 [label="tr_dp.h"];
+  13 [label="tr_sdt.c"];
+  8 [label="tr_sdt.h"];
+}
